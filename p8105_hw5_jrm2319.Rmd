@@ -66,11 +66,11 @@ for (mu in new_mus) {
 tot_results = bind_rows(all_results)
 ```
 
-Make a plot showing the proportion of times the null was rejected and the true value of mu. 
+PLOT: showing the proportion of times the null was rejected and the true value of mu. 
 ```{r}
 tot_results = tot_results %>%
   mutate(
-    rejection = p_value < 0.05  # 1 if null hypothesis is rejected, 0 if not
+    rejection = p_value < 0.05
   )
 
 rejection_proportion = tot_results %>%
@@ -90,9 +90,52 @@ ggplot(rejection_proportion, aes(x = mu, y = rejection_rate)) +
 
 
 ```
+Describe the association between effect size and power:  
+Based on the graph above, the power of the test increases as the true value of mu increases. Therefore, we can see a positive relationship between the true value of mu and power however, it does level off betwen mu = 5 and mu = 6.
 
+PLOT: The average estimation of mu_hat and the true value of mu.
 
+```{r}
+avg_mu_hat = tot_results %>%
+  group_by(mu) %>%
+  summarize(
+    avg_mu_hat = mean(mu_hat)
+  )
 
+ggplot(avg_mu_hat, aes(x = mu, y = avg_mu_hat)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    x = "True μ", 
+    y = "Average Estimate of μ_hat"
+  ) +
+  theme_minimal()
 
+```
+PLOT: Average estimate of mu_hat only in samples for which the null was rejected. 
+```{r}
+avg_mu_hat_rejected = tot_results %>%
+  filter(rejection == TRUE) %>%
+  group_by(mu) %>%
+  summarize(
+    avg_mu_hat_rejected = mean(mu_hat)
+  )
+
+ggplot(avg_mu_hat_rejected, aes(x = mu, y = avg_mu_hat_rejected)) +
+  geom_line() + 
+  geom_point() +
+  labs(
+    x = "True μ", 
+    y = "Average Estimate of μ_hat"
+  ) +
+  theme_minimal()
+
+```
+Is the sample average of μ_hat across tests for which the null is rejected approximately equal to the true value of μ? Why or why not? 
+The sample average of μ_hat across tests for which the null is rejected is not approximately equal to the true value of μ. Based on the graph, the sample averages of μ_hat = 2, 3, and 4 are more than the true value of μ. For example, in the first graph, we see that the average estimated μ_hat = 2 has a true value of μ =2, however in the bottom graph the average estimated μ_hat = 2 has a true value of μ = ~2.2. 
+
+Therefore, the sample average of μ_hat across tests for which the null is rejected is larger than the true value of μ and therefore they are not approximately equal. 
+
+But, for the sample average of μ_hat = 5 and 6, the null is rejected is approximately equal to the true value of μ. 
 
 ### **Problem 3**
