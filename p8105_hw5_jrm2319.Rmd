@@ -139,3 +139,57 @@ Therefore, the sample average of μ_hat across tests for which the null is rejec
 But, for the sample average of μ_hat = 5 and 6, the null is rejected is approximately equal to the true value of μ. 
 
 ### **Problem 3**
+Import data 
+```{r}
+library(readr)
+library(dplyr)
+
+URL = "https://raw.githubusercontent.com/washingtonpost/data-homicides/refs/heads/master/homicide-data.csv"
+
+wp_data = read_csv(URL, show_col_types = FALSE)
+```
+Describe the raw data:  
+The Washington Post data describes homicides in 50 large U.S. cities. There are 52,179 observations and 12 variables. The data includes victim information including name, age, race, and sex. The data also includes information about the homicide, such as reported date, city, state, and disposition (stating if the case is open or closed and if there was or was not an arrest).
+
+Creating city_state variable 
+```{r}
+wp_data = wp_data %>%
+  mutate(city_state = paste(city, state, sep = ", "))
+```
+
+Summarize within cities to obtain the total number of homicides and the number of unsolved homicides. 
+```{r}
+wp_summary = wp_data %>%
+  group_by(city_state) %>%
+  summarize(
+    total_homicides = n(),
+    unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest"), na.rm = TRUE)
+  )
+```
+
+For Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved. 
+```{r}
+baltimore_data = wp_data %>%
+  filter(city_state == "Baltimore, MD")
+
+unsolved_count = sum(baltimore_data$disposition %in% c("Closed without arrest", "Open/No arrest"), na.rm = TRUE)
+total_count = nrow(baltimore_data)
+
+prop_test_result = prop.test(unsolved_count, total_count)
+
+prop_test_tidy = broom::tidy(prop_test_result)
+
+estimated_proportion = prop_test_tidy$estimate
+CI_lower = prop_test_tidy$conf.low
+CI_upper = prop_test_tidy$conf.high
+
+print(estimated_proportion)
+print (CI_lower)
+print (CI_upper)
+
+```
+Run prop.test for each of the cities in the database and extract both the proportion of unsolved homicides and the CI for each. 
+```{r}
+
+```
+
