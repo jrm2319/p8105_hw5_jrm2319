@@ -1,0 +1,6 @@
+---
+title: "Homework 5"
+output: github_document
+Name: Jasmin Martinez
+Date: 11/15/2024
+---
