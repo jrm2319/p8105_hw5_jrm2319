@@ -4,6 +4,70 @@ output: github_document
 Name: Jasmin Martinez
 Date: 11/15/2024
 ---
+Set- up
+```{r}
+library(tidyverse)
+```
+
 ### **Problem 2**
+First set the following design elements:
+
+Fix n=30
+Fix σ=5
+
+Set μ=0 and generate 5000 datasets from the model: x∼Normal[μ,σ]. 
+Also, save mu and p-value arising from a test of H: mu = 0 and alpha = 0.05. 
+```{r}
+gen_p2 = function(n = 30, mu =  0, sigma = 5) {
+  gen_data = tibble(
+    x = rnorm(n, mean = mu, sd = sigma),
+  )
+  
+  test_result = t.test(gen_data$x, mu = 0)
+  tidy_result = broom::tidy(test_result)
+  
+  gen_data |>
+    summarize(
+      mu_hat = mean(x),
+      sigma_hat = sd(x),
+      p_value = tidy_result$p.value
+    )
+}
+
+output = vector("list", 5000)
+
+for (i in 1:5000) {
+  output[[i]] = gen_p2(30)
+}
+
+gen_results = bind_rows(output)
+```
+
+Repeat the above for mu = 1-6
+```{r}
+new_mus = c(1,2,3,4,5,6)
+
+all_results = list()
+
+for (mu in new_mus) {
+  output = vector("list", 5000) 
+
+  for (i in 1:5000) {
+    output[[i]] = gen_p2(30, mu = mu)
+  }
+  
+  gen_results = bind_rows(output)
+  
+   gen_results$mu = mu
+   
+    all_results[[as.character(mu)]] = gen_results
+}
+
+tot_results = bind_rows(all_results)
+```
+
+
+
+
 
 ### **Problem 3**
