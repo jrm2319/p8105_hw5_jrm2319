@@ -4,3 +4,6 @@ output: github_document
 Name: Jasmin Martinez
 Date: 11/15/2024
 ---
+### **Problem 2**
+
+### **Problem 3**
