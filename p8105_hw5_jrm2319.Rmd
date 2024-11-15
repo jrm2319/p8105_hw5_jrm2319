@@ -66,6 +66,31 @@ for (mu in new_mus) {
 tot_results = bind_rows(all_results)
 ```
 
+Make a plot showing the proportion of times the null was rejected and the true value of mu. 
+```{r}
+tot_results = tot_results %>%
+  mutate(
+    rejection = p_value < 0.05  # 1 if null hypothesis is rejected, 0 if not
+  )
+
+rejection_proportion = tot_results %>%
+  group_by(mu) %>%
+  summarize(
+    rejection_rate = mean(rejection)
+  )
+
+ggplot(rejection_proportion, aes(x = mu, y = rejection_rate)) +
+  geom_line() + 
+  geom_point() +
+  labs(
+    x = "True μ",
+    y = "Proportion of Rejections",
+  ) +
+  theme_minimal()
+
+
+```
+
 
 
 
