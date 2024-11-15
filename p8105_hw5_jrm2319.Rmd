@@ -188,8 +188,74 @@ print (CI_lower)
 print (CI_upper)
 
 ```
-Run prop.test for each of the cities in the database and extract both the proportion of unsolved homicides and the CI for each. 
+
+Run prop.test for each of the cities in the database and extract both the proportion of unsolved homicides and the CI for each. ***CHECK***
+
+We run becuase you're not getting the confidence intervals
+
 ```{r}
+library(dplyr)
+library(tidyr)
+library(purrr)
+
+run_prop_test = function(unsolved, total) {
+  if (total == 0) {
+    return(list(proportion  = NA, CI_low = NA, CI_high = NA))
+  }
+  
+  test_result = prop.test(unsolved, total, correct = TRUE)
+  
+  list(
+    proportion  = test_result$estimate,
+    CI_low = test_result$conf.int[1],
+    CI_high = test_result$conf.int[2]
+  )
+}
+
+wp_city_results = wp_data %>%
+  group_by(city_state) %>%
+  summarize(
+    total_homicides = n(),
+    unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest"), na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    results = purrr::map2(unsolved_homicides, total_homicides, run_prop_test)
+  ) %>%
+  unnest_wider(results) %>%
+  # Select only the relevant columns: city_state, unsolved_homicides, and the CI
+  select(city_state, unsolved_homicides, proportion, CI_low, CI_high)
+
+# Print the cleaned up results
+print(wp_city_results)
+
+```
+
+
+PLOT: Estimates and CIs for each city ***CHECK***
+```{r}
+library(ggplot2)
+library(dplyr)
+
+wp_city_results <- wp_city_results %>%
+  arrange(desc(proportion)) %>%
+  mutate(city_state = factor(city_state, levels = city_state))
+
+ggplot(wp_city_results, aes(x = city_state, y = proportion)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = CI_low, ymax = CI_high), width = 0.2) +
+  coord_flip() +  # Flip coordinates for better readability
+  labs(
+    title = "Proportion of Unsolved Homicides by City in the U.S.",
+    x = "City, State",
+    y = "Proportion of Unsolved Homicides"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 5),
+    axis.title.x = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold")
+  )
 
 ```
 
