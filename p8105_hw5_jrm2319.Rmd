@@ -189,10 +189,7 @@ print (CI_upper)
 
 ```
 
-Run prop.test for each of the cities in the database and extract both the proportion of unsolved homicides and the CI for each. ***CHECK***
-
-We run becuase you're not getting the confidence intervals
-
+Run prop.test for each of the cities in the database and extract both the proportion of unsolved homicides and the CI for each.
 ```{r}
 library(dplyr)
 library(tidyr)
@@ -232,7 +229,7 @@ print(wp_city_results)
 ```
 
 
-PLOT: Estimates and CIs for each city ***CHECK***
+PLOT: Estimates and CIs for each city
 ```{r}
 library(ggplot2)
 library(dplyr)
